@@ -1,48 +1,29 @@
 """
-Database Schemas
+Travair Schemas
 
-Define your MongoDB collection schemas here using Pydantic models.
-These schemas are used for data validation in your application.
-
-Each Pydantic model represents a collection in your database.
-Model name is converted to lowercase for the collection name:
-- User -> "user" collection
-- Product -> "product" collection
-- BlogPost -> "blogs" collection
+Each Pydantic model here corresponds to a MongoDB collection with the
+lowercased class name, e.g. Trip -> "trip".
 """
-
 from pydantic import BaseModel, Field
-from typing import Optional
+from typing import Optional, List, Dict, Any
 
-# Example schemas (replace with your own):
+class Trip(BaseModel):
+    destination: str
+    days: int = Field(..., ge=1, le=30)
+    budget: float = Field(..., ge=0)
+    preferences: List[str] = []
+    estimated_cost: Optional[float] = None
 
-class User(BaseModel):
-    """
-    Users collection schema
-    Collection name: "user" (lowercase of class name)
-    """
-    name: str = Field(..., description="Full name")
-    email: str = Field(..., description="Email address")
-    address: str = Field(..., description="Address")
-    age: Optional[int] = Field(None, ge=0, le=120, description="Age in years")
-    is_active: bool = Field(True, description="Whether user is active")
+class Guide(BaseModel):
+    name: str
+    city: str
+    rating: float = Field(..., ge=0, le=5)
+    price_per_hour: float = Field(..., ge=0)
+    languages: List[str] = ["en"]
+    available: bool = True
 
-class Product(BaseModel):
-    """
-    Products collection schema
-    Collection name: "product" (lowercase of class name)
-    """
-    title: str = Field(..., description="Product title")
-    description: Optional[str] = Field(None, description="Product description")
-    price: float = Field(..., ge=0, description="Price in dollars")
-    category: str = Field(..., description="Product category")
-    in_stock: bool = Field(True, description="Whether product is in stock")
-
-# Add your own schemas here:
-# --------------------------------------------------
-
-# Note: The Flames database viewer will automatically:
-# 1. Read these schemas from GET /schema endpoint
-# 2. Use them for document validation when creating/editing
-# 3. Handle all database operations (CRUD) directly
-# 4. You don't need to create any database endpoints!
+class Booking(BaseModel):
+    type: str = Field(..., description="flight|hotel|bus|cab|tour|package")
+    details: Dict[str, Any]
+    user_id: Optional[str] = None
+    status: str = "pending"
